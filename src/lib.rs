@@ -7,7 +7,7 @@
 //! # Quick start (one-shot)
 //!
 //! ```rust
-//! let result = mlua_check::run_lint("print('hello')", "@main.lua").unwrap();
+//! let result = mlua_check::run_lint("print('hello')", "@main.lua", &[]).unwrap();
 //! assert_eq!(result.diagnostics.len(), 0);
 //! ```
 //!

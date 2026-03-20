@@ -1,6 +1,6 @@
 [package]
 name = "mlua-check"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.77"
 description = "Lua checker on mlua — undefined variable/global/field detection with LuaCats support"

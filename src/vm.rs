@@ -71,16 +71,52 @@ pub fn register_with_config(lua: &Lua, config: LintConfig) -> LuaResult<LintEngi
     Ok(engine)
 }
 
+/// Prepend entries to Lua's `package.path` so that `require` can find
+/// modules in project-specific directories.
+///
+/// For each directory in `search_paths`, two patterns are added:
+/// `<dir>/?.lua` and `<dir>/?/init.lua`.
+fn prepend_search_paths(lua: &Lua, search_paths: &[&str]) -> Result<(), String> {
+    if search_paths.is_empty() {
+        return Ok(());
+    }
+    let package: LuaTable = lua
+        .globals()
+        .get("package")
+        .map_err(|e| format!("Failed to get package table: {e}"))?;
+    let current: String = package
+        .get("path")
+        .map_err(|e| format!("Failed to get package.path: {e}"))?;
+
+    let mut prefix = String::new();
+    for dir in search_paths {
+        let dir = dir.trim_end_matches('/');
+        prefix.push_str(dir);
+        prefix.push_str("/?.lua;");
+        prefix.push_str(dir);
+        prefix.push_str("/?/init.lua;");
+    }
+    prefix.push_str(&current);
+
+    package
+        .set("path", prefix)
+        .map_err(|e| format!("Failed to set package.path: {e}"))?;
+    Ok(())
+}
+
 /// One-shot lint: creates a fresh Lua VM, collects stdlib symbols, and lints.
 ///
-/// This is the simplest API — equivalent to `mlua_lspec::run_tests`.
+/// `search_paths` is prepended to `package.path` so that the VM can
+/// resolve project-specific modules when building the symbol table.
+/// Pass `&[]` when no extra paths are needed.
 ///
 /// ```rust
-/// let result = mlua_check::run_lint("print('hello')", "@test.lua").unwrap();
+/// let result = mlua_check::run_lint("print('hello')", "@test.lua", &[]).unwrap();
 /// assert_eq!(result.diagnostics.len(), 0);
 /// ```
-pub fn run_lint(code: &str, chunk_name: &str) -> Result<LintResult, String> {
+pub fn run_lint(code: &str, chunk_name: &str, search_paths: &[&str]) -> Result<LintResult, String> {
     let lua = Lua::new();
+    prepend_search_paths(&lua, search_paths)?;
     let engine = register(&lua).map_err(|e| format!("Failed to collect VM symbols: {e}"))?;
     Ok(engine.lint(code, chunk_name))
 }
@@ -162,14 +198,14 @@ mod tests {
 
     #[test]
     fn run_lint_detects_undefined() {
-        let result = run_lint("unknown_func()", "@test.lua").unwrap();
+        let result = run_lint("unknown_func()", "@test.lua", &[]).unwrap();
         assert!(result.warning_count > 0);
         assert!(result.diagnostics[0].message.contains("unknown_func"));
     }
 
     #[test]
     fn run_lint_allows_stdlib() {
-        let result = run_lint("print(table.insert)", "@test.lua").unwrap();
+        let result = run_lint("print(table.insert)", "@test.lua", &[]).unwrap();
         assert_eq!(result.diagnostics.len(), 0);
     }
 
