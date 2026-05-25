@@ -109,8 +109,14 @@ mod tests {
         let mut symbols = SymbolTable::new();
         symbols.add_global("alc");
         let stub = build_meta_stub(&symbols);
-        assert!(stub.contains("alc = nil"), "stub missing global declaration");
-        assert!(stub.contains("---@type any"), "stub missing type annotation");
+        assert!(
+            stub.contains("alc = nil"),
+            "stub missing global declaration"
+        );
+        assert!(
+            stub.contains("---@type any"),
+            "stub missing type annotation"
+        );
     }
 
     #[test]
@@ -125,7 +131,10 @@ mod tests {
         assert!(stub.contains("---@class alc_Class\n"), "missing ---@class");
         // Fields (order may vary, but both must be present)
         assert!(stub.contains("---@field llm any\n"), "missing llm field");
-        assert!(stub.contains("---@field state any\n"), "missing state field");
+        assert!(
+            stub.contains("---@field state any\n"),
+            "missing state field"
+        );
         // Global typed as the class
         assert!(stub.contains("---@type alc_Class\n"), "missing class type");
         assert!(stub.contains("alc = nil\n"), "missing global assignment");

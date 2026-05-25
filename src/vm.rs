@@ -193,13 +193,13 @@ mod tests {
 
         // unknown_func is not
         let result = engine.lint("unknown_func()", "@test.lua");
-        assert!(result.warning_count > 0);
+        assert!(result.error_count > 0);
     }
 
     #[test]
     fn run_lint_detects_undefined() {
         let result = run_lint("unknown_func()", "@test.lua", &[]).unwrap();
-        assert!(result.warning_count > 0);
+        assert!(result.error_count > 0);
         assert!(result.diagnostics[0].message.contains("unknown_func"));
     }
 
