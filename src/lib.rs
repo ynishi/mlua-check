@@ -33,7 +33,10 @@
 //! ```
 
 pub mod config;
+pub(crate) mod diagnostic_bridge;
+pub(crate) mod emmyrc_bridge;
 pub mod engine;
+pub(crate) mod globals_bridge;
 mod rules;
 pub mod scope;
 pub mod symbols;
