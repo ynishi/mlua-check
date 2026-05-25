@@ -37,12 +37,9 @@ pub(crate) mod diagnostic_bridge;
 pub(crate) mod emmyrc_bridge;
 pub mod engine;
 pub(crate) mod globals_bridge;
-mod rules;
-pub mod scope;
 pub mod symbols;
 pub mod types;
 pub mod vm;
-mod walker;
 
 pub use config::{LintConfig, LintPolicy};
 pub use engine::LintEngine;
