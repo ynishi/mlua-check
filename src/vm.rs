@@ -223,6 +223,6 @@ mod tests {
 
         // alc.unknown is not
         let result = lint(&lua, "alc.unknown('hello')", "@test.lua").unwrap();
-        assert!(result.diagnostics.len() > 0);
+        assert!(!result.diagnostics.is_empty());
     }
 }
