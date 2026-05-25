@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `examples/` directory with three runnable demos (`basic_lint`, `with_vm`, `luacats`); run any with `cargo run --example <name>`
 - `RuleId::Other(String)` variant — diagnostics from `emmylua_code_analysis` that do not map to the four named variants are captured here rather than silently dropped
 - `#[non_exhaustive]` on `RuleId` — callers must handle future variants via a wildcard arm (breaking for exhaustive `match` without wildcard)
 - `custom globals` injection API — `register(&lua)` / `register_with_config(&lua, config)` now build a `---@meta` virtual stub from the live VM symbol table and feed it into the analyser, resolving undefined-global false positives for host-defined globals

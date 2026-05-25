@@ -22,6 +22,9 @@ let result = mlua_check::run_lint("print('hello')", "@main.lua", &[]).unwrap();
 assert_eq!(result.diagnostics.len(), 0);
 ```
 
+See [`examples/`](examples/) for runnable demos (`basic_lint`, `with_vm`, `luacats`).
+Run any with `cargo run --example <name>`.
+
 ## With an existing VM
 
 ```rust
