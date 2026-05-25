@@ -78,6 +78,44 @@ impl SymbolTable {
         self.class_fields.get(class_name)
     }
 
+    /// Iterate over all top-level global names.
+    ///
+    /// # Returns
+    ///
+    /// An iterator yielding each registered global name as a `&str`.
+    pub fn globals_iter(&self) -> impl Iterator<Item = &str> {
+        self.globals.iter().map(String::as_str)
+    }
+
+    /// Iterate over all global table names that have registered fields.
+    ///
+    /// # Returns
+    ///
+    /// An iterator yielding each table name (key in `global_fields`) as a
+    /// `&str`.
+    pub fn global_tables_iter(&self) -> impl Iterator<Item = &str> {
+        self.global_fields.keys().map(String::as_str)
+    }
+
+    /// Iterate over the known fields of a global table.
+    ///
+    /// # Arguments
+    ///
+    /// - `table`: the name of the global table.
+    ///
+    /// # Returns
+    ///
+    /// `Some(iterator)` when the table has registered fields, `None`
+    /// otherwise.
+    pub fn global_fields_iter_for<'a>(
+        &'a self,
+        table: &str,
+    ) -> Option<impl Iterator<Item = &'a str>> {
+        self.global_fields
+            .get(table)
+            .map(|set| set.iter().map(String::as_str))
+    }
+
     /// Pre-populate with Lua 5.4 standard library globals.
     pub fn with_lua54_stdlib(mut self) -> Self {
         let stdlib_globals = [

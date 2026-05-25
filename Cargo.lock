@@ -934,6 +934,7 @@ dependencies = [
 name = "mlua-check"
 version = "0.2.0"
 dependencies = [
+ "emmy_lsp_types",
  "emmylua_code_analysis",
  "emmylua_parser",
  "mlua",
