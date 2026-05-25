@@ -134,7 +134,10 @@ mod tests {
             rule_severity: severity_map,
         };
         let arc = build_emmyrc(&config);
-        let setting = arc.diagnostics.severity.get(&DiagnosticCode::UndefinedGlobal);
+        let setting = arc
+            .diagnostics
+            .severity
+            .get(&DiagnosticCode::UndefinedGlobal);
         assert!(
             matches!(setting, Some(DiagnosticSeveritySetting::Error)),
             "expected Error, got {:?}",
@@ -212,7 +215,10 @@ mod tests {
         let arc = build_emmyrc(&config);
         // Policy is Strict → enabled
         assert!(arc.diagnostics.enable);
-        let setting = arc.diagnostics.severity.get(&DiagnosticCode::UndefinedField);
+        let setting = arc
+            .diagnostics
+            .severity
+            .get(&DiagnosticCode::UndefinedField);
         assert!(
             matches!(setting, Some(DiagnosticSeveritySetting::Warning)),
             "expected Warning, got {:?}",
