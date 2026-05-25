@@ -4,6 +4,8 @@ Lua checker on [mlua](https://github.com/mlua-rs/mlua) — undefined variable / 
 
 Designed to run **before** Lua execution, providing a safety net for AI-driven and programmatic Lua code generation.
 
+Backed by [emmylua_code_analysis](https://github.com/EmmyLuaLs/emmylua-analyzer-rust) for accurate Lua 5.4 diagnostics.
+
 ## Features
 
 - **Undefined variable** — reference to a variable not defined in any enclosing scope
@@ -15,7 +17,8 @@ Designed to run **before** Lua execution, providing a safety net for AI-driven a
 ## Quick start
 
 ```rust
-let result = mlua_check::run_lint("print('hello')", "@main.lua").unwrap();
+// third argument: optional search paths prepended to Lua's package.path
+let result = mlua_check::run_lint("print('hello')", "@main.lua", &[]).unwrap();
 assert_eq!(result.diagnostics.len(), 0);
 ```
 
@@ -53,6 +56,16 @@ let config = LintConfig::default().with_policy(LintPolicy::Strict);
 | `Strict` | Lint errors block execution |
 | `Warn` | Issues reported, execution proceeds (default) |
 | `Off` | Linting disabled |
+
+## Diagnostics
+
+`RuleId` covers the four common categories (`UndefinedVariable`, `UndefinedGlobal`, `UndefinedField`, `UnusedVariable`) plus `Other(String)` for any additional codes reported by the analyser. `RuleId` is `#[non_exhaustive]`, so `match` expressions require a wildcard arm.
+
+The following issues from the previous walker-based implementation are resolved:
+
+- `for`-`in` loop variables no longer produce false-positive undefined-global diagnostics.
+- The Lua 5.4 standard global `arg` is now recognised without manual declaration.
+- Custom globals registered on the `mlua` VM via `register(&lua)` are injected into the analyser as a `---@meta` virtual stub, eliminating false positives for host-defined names.
 
 ## License
 

@@ -8,8 +8,6 @@ pub struct SymbolTable {
     globals: HashSet<String>,
     /// First-level fields of global tables (e.g. `alc` → {`llm`, `state`}).
     global_fields: HashMap<String, HashSet<String>>,
-    /// LuaCats `---@class` definitions: class name → known field names.
-    class_fields: HashMap<String, HashSet<String>>,
 }
 
 impl SymbolTable {
@@ -48,34 +46,42 @@ impl SymbolTable {
         self.global_fields.get(table)
     }
 
-    /// Register a `---@class` definition (creates an empty field set if new).
-    pub fn add_class(&mut self, class_name: &str) {
-        self.class_fields.entry(class_name.to_string()).or_default();
+    /// Iterate over all top-level global names.
+    ///
+    /// # Returns
+    ///
+    /// An iterator yielding each registered global name as a `&str`.
+    pub fn globals_iter(&self) -> impl Iterator<Item = &str> {
+        self.globals.iter().map(String::as_str)
     }
 
-    /// Register a field on a `---@class`.
-    pub fn add_class_field(&mut self, class_name: &str, field: &str) {
-        self.class_fields
-            .entry(class_name.to_string())
-            .or_default()
-            .insert(field.to_string());
+    /// Iterate over all global table names that have registered fields.
+    ///
+    /// # Returns
+    ///
+    /// An iterator yielding each table name (key in `global_fields`) as a
+    /// `&str`.
+    pub fn global_tables_iter(&self) -> impl Iterator<Item = &str> {
+        self.global_fields.keys().map(String::as_str)
     }
 
-    /// Check whether a class is known.
-    pub fn has_class(&self, class_name: &str) -> bool {
-        self.class_fields.contains_key(class_name)
-    }
-
-    /// Check whether a field exists on a class.
-    pub fn has_class_field(&self, class_name: &str, field: &str) -> bool {
-        self.class_fields
-            .get(class_name)
-            .is_some_and(|fields| fields.contains(field))
-    }
-
-    /// Get all known fields for a class (for "did you mean?" suggestions).
-    pub fn class_fields_for(&self, class_name: &str) -> Option<&HashSet<String>> {
-        self.class_fields.get(class_name)
+    /// Iterate over the known fields of a global table.
+    ///
+    /// # Arguments
+    ///
+    /// - `table`: the name of the global table.
+    ///
+    /// # Returns
+    ///
+    /// `Some(iterator)` when the table has registered fields, `None`
+    /// otherwise.
+    pub fn global_fields_iter_for<'a>(
+        &'a self,
+        table: &str,
+    ) -> Option<impl Iterator<Item = &'a str>> {
+        self.global_fields
+            .get(table)
+            .map(|set| set.iter().map(String::as_str))
     }
 
     /// Pre-populate with Lua 5.4 standard library globals.
